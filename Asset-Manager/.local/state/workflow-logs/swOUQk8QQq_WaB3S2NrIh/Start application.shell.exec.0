@@ -1,0 +1,11 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+[1G[0KSeeding database with sample data...
+Database seeded successfully.
+6:46:00 AM [express] serving on port 5000
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+6:46:06 AM [express] GET /api/dashboard-stats 200 in 19ms :: {"totalProjects":2,"totalKeywords":33,"totalClusters":4,"totalContentPlans":2,"recentProjects":[{"id":2,"name":"Fitness Authority","domain":"fitnessauthority.io","createdAt":"2026-03-10T06:45:59.932Z"},{"id":1,"name":"TechBlog Pro","domain":"techblogpro.com","createdAt":"2026-03-10T06:45:59.885Z"}]}
+6:46:15 AM [express] GET /api/dashboard-stats 200 in 5ms :: {"totalProjects":2,"totalKeywords":33,"totalClusters":4,"totalContentPlans":2,"recentProjects":[{"id":2,"name":"Fitness Authority","domain":"fitnessauthority.io","createdAt":"2026-03-10T06:45:59.932Z"},{"id":1,"name":"TechBlog Pro","domain":"techblogpro.com","createdAt":"2026-03-10T06:45:59.885Z"}]}

@@ -1,0 +1,357 @@
+You are a senior AI architect and full-stack engineer.
+
+Build a production-ready SaaS application called:
+
+AI SEO CLUSTER TOOL
+(Topical Authority Automation System)
+
+The system automatically builds topical authority for websites using AI by collecting keywords, clustering them, generating content plans, and suggesting internal linking strategies.
+
+The project must be modular, scalable, and cleanly structured.
+
+---
+
+TECH STACK
+
+Frontend
+React (Vite)
+TailwindCSS
+Shadcn UI
+Axios
+
+Backend
+FastAPI (Python)
+
+AI / ML
+SentenceTransformers
+OpenAI API
+Scikit-learn
+FAISS vector store
+
+Database
+PostgreSQL
+
+DevOps
+Docker
+Docker Compose
+
+---
+
+MAIN FEATURES
+
+1. KEYWORD COLLECTOR
+   Collect keywords using:
+   Google Autocomplete API
+   Seed keywords
+
+Input
+seed keyword
+
+Process
+call autocomplete
+collect long tail keywords
+
+Output
+keyword list
+
+---
+
+2. KEYWORD EMBEDDING ENGINE
+
+Use SentenceTransformers
+
+Model
+all-MiniLM-L6-v2
+
+Convert keywords into embeddings.
+
+Example
+
+keywords -> embedding vectors
+
+Store vectors in FAISS.
+
+---
+
+3. KEYWORD CLUSTERING ENGINE
+
+Use KMeans clustering.
+
+Steps
+
+generate embeddings
+run clustering
+group keywords by semantic similarity
+
+Output example
+
+Cluster 1
+best seo tools
+seo tools free
+top seo software
+
+Cluster 2
+seo keyword research
+keyword research guide
+how to find keywords
+
+---
+
+4. CONTENT PLAN GENERATOR
+
+Use OpenAI API.
+
+Input
+keyword cluster
+
+Output
+SEO content plan
+
+Structure
+
+Cluster Topic
+Pillar Article
+Supporting Articles
+Recommended headings
+Search intent
+Meta title
+Meta description
+
+Example Output
+
+Topic Cluster: SEO Tools
+
+Pillar Page
+Ultimate Guide to SEO Tools
+
+Supporting Articles
+Best Free SEO Tools
+How to Use SEO Tools
+SEO Tool Comparison
+
+---
+
+5. INTERNAL LINKING GENERATOR
+
+Input
+cluster structure
+
+Output
+internal linking suggestions
+
+Example
+
+Pillar Page
+links to all supporting articles
+
+Supporting Articles
+link back to pillar
+
+---
+
+6. VECTOR SEARCH SYSTEM
+
+Use FAISS
+
+Purpose
+
+semantic keyword search
+topic discovery
+
+---
+
+7. DATABASE STRUCTURE
+
+PostgreSQL tables
+
+projects
+id
+name
+domain
+
+keywords
+id
+project_id
+keyword
+
+clusters
+id
+project_id
+cluster_name
+
+cluster_keywords
+cluster_id
+keyword_id
+
+content_plans
+cluster_id
+pillar_title
+supporting_titles
+
+---
+
+8. API ENDPOINTS
+
+FastAPI routes
+
+POST /project
+create project
+
+POST /keywords
+collect keywords
+
+POST /cluster
+generate clusters
+
+POST /content-plan
+generate plan
+
+GET /clusters
+list clusters
+
+GET /report
+generate SEO report
+
+---
+
+9. FRONTEND DASHBOARD
+
+Pages
+
+Dashboard
+Project Manager
+Keyword Collector
+Cluster Viewer
+Content Planner
+SEO Report
+
+UI Requirements
+
+clean SaaS dashboard
+sidebar navigation
+tables
+cluster visualization
+keyword charts
+
+---
+
+10. PROJECT FOLDER STRUCTURE
+
+Create the following structure
+
+/ai-seo-tool
+
+/backend
+main.py
+config.py
+requirements.txt
+
+/api
+projects.py
+keywords.py
+clustering.py
+content.py
+
+/services
+keyword_collector.py
+embedding_engine.py
+clustering_engine.py
+content_generator.py
+linking_strategy.py
+
+/vector_store
+faiss_store.py
+
+/database
+db.py
+models.py
+
+/frontend
+/src
+/components
+/pages
+/api
+
+Dockerfile
+docker-compose.yml
+
+---
+
+11. IMPLEMENTATION DETAILS
+
+Keyword Collector
+use requests
+parse autocomplete suggestions
+
+Embedding Engine
+SentenceTransformer
+
+Clustering
+scikit-learn KMeans
+
+Vector Store
+FAISS index
+
+Content Generator
+OpenAI API
+
+---
+
+12. DOCKER DEPLOYMENT
+
+Provide
+
+Dockerfile
+docker-compose.yml
+
+Services
+
+backend
+frontend
+postgres
+
+---
+
+13. REQUIREMENTS.TXT
+
+Include
+
+fastapi
+uvicorn
+sentence-transformers
+scikit-learn
+faiss-cpu
+openai
+psycopg2-binary
+sqlalchemy
+requests
+
+---
+
+14. EXTRA FEATURES
+
+Add:
+
+keyword difficulty estimator
+SERP intent detection
+topic authority score
+cluster visualization graph
+
+---
+
+15. FINAL OUTPUT
+
+Generate complete working code including
+
+backend
+frontend
+database models
+API routes
+AI services
+Docker deployment
+
+Ensure code is modular, commented, and production ready.
+
+Also include instructions for running the project locally.
+
+---

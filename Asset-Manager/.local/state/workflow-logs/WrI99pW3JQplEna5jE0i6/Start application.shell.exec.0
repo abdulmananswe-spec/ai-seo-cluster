@@ -1,0 +1,13 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+[1G[0K[dotenv@17.3.1] injecting env (0) from .env [2m-- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`[0m
+[dotenv@17.3.1] injecting env (0) from .env [2m-- tip: ⚙️  override existing env vars with { override: true }[0m
+[dotenv@17.3.1] injecting env (0) from .env [2m-- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }[0m
+[dotenv@17.3.1] injecting env (0) from .env [2m-- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`[0m
+[dotenv@17.3.1] injecting env (0) from .env [2m-- tip: ⚙️  suppress all logs with { quiet: true }[0m
+9:26:27 AM [express] serving on port 5000
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+9:26:43 AM [express] GET /api/dashboard-stats 304 in 37ms :: {"totalProjects":4,"totalKeywords":121,"totalClusters":19,"totalContentPlans":7,"recentProjects":[{"id":4,"name":"Ranksol","domain":"https://ranksol.com/contact-us/","createdAt":"2026-03-10T07:13:11.374Z"},{"id":3,"name":"Test SEO Project","domain":"testseo.com","createdAt":"2026-03-10T06:50:32.407Z"},{"id":2,"name":"Fitness Authority","domain":"fitnessauthority.io","createdAt":"2026-03-10T06:45:59.932Z"},{"id":1,"name":"TechBlog Pro","domain":"techblogpro.com","createdAt":"2026-03-10T06:45:59.885Z"}]}

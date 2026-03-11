@@ -1,0 +1,91 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+[1G[0K9:15:47 AM [express] serving on port 5000
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+9:15:53 AM [express] GET /api/dashboard-stats 200 in 24ms :: {"totalProjects":4,"totalKeywords":121,"totalClusters":19,"totalContentPlans":7,"recentProjects":[{"id":4,"name":"Ranksol","domain":"https://ranksol.com/contact-us/","createdAt":"2026-03-10T07:13:11.374Z"},{"id":3,"name":"Test SEO Project","domain":"testseo.com","createdAt":"2026-03-10T06:50:32.407Z"},{"id":2,"name":"Fitness Authority","domain":"fitnessauthority.io","createdAt":"2026-03-10T06:45:59.932Z"},{"id":1,"name":"TechBlog Pro","domain":"techblogpro.com","createdAt":"2026-03-10T06:45:59.885Z"}]}
+9:17:12 AM [express] GET /api/projects 304 in 11ms :: [{"id":4,"name":"Ranksol","domain":"https://ranksol.com/contact-us/","createdAt":"2026-03-10T07:13:11.374Z"},{"id":3,"name":"Test SEO Project","domain":"testseo.com","createdAt":"2026-03-10T06:50:32.407Z"},{"id":2,"name":"Fitness Authority","domain":"fitnessauthority.io","createdAt":"2026-03-10T06:45:59.932Z"},{"id":1,"name":"TechBlog Pro","domain":"techblogpro.com","createdAt":"2026-03-10T06:45:59.885Z"}]
+9:17:14 AM [express] GET /api/dashboard-stats 304 in 17ms :: {"totalProjects":4,"totalKeywords":121,"totalClusters":19,"totalContentPlans":7,"recentProjects":[{"id":4,"name":"Ranksol","domain":"https://ranksol.com/contact-us/","createdAt":"2026-03-10T07:13:11.374Z"},{"id":3,"name":"Test SEO Project","domain":"testseo.com","createdAt":"2026-03-10T06:50:32.407Z"},{"id":2,"name":"Fitness Authority","domain":"fitnessauthority.io","createdAt":"2026-03-10T06:45:59.932Z"},{"id":1,"name":"TechBlog Pro","domain":"techblogpro.com","createdAt":"2026-03-10T06:45:59.885Z"}]}
+9:17:26 AM [express] GET /api/projects/4/competitors 200 in 10ms :: []
+9:17:53 AM [express] POST /api/projects/4/competitors 201 in 247ms :: {"id":1,"projectId":4,"domain":"https://www.devsinc.com/","createdAt":"2026-03-10T09:17:52.944Z"}
+9:17:53 AM [express] GET /api/projects/4/competitors 200 in 2ms :: [{"id":1,"projectId":4,"domain":"https://www.devsinc.com/","createdAt":"2026-03-10T09:17:52.944Z"}]
+9:17:53 AM [express] GET /api/competitors/1/analysis 404 in 1ms :: {"message":"No analysis found"}
+9:18:08 AM [express] POST /api/competitors/1/analyze 201 in 4627ms :: {"id":1,"competitorId":1,"domainAuthority":45,"organicKeywords":1,"organicTraffic":100,"topKeywords":[{"volume":300,"keyword":"devsinc","position":1},{"volume":150,"keyword":"devsinc contact","position":1},{"volume":100,"keyword":"software development company devsinc","position":3},{"volume":80,"keyword":"devsinc careers","position":4},{"volume":70,"keyword":"devsinc services","position":5}],"contentGaps":["AI solutions for business automation","AI-powered tools for workflow optimization","Affordable AI automation tools for small businesses","AI solutions for manufacturing process automation","AI-driven customer service automation solutions"],"strengths":["Strong branding and focus on software development services","High ranking for branded keywords","Clear and professional website design","Established presence in the software development industry"],"weaknesses":["Limited focus on AI and automation solutions","Low domain authority compared to larger competitors","Minimal organic traffic and keyword diversity","Lack of content targeting AI automation for specific industries"],"createdAt":"2026-03-10T09:18:08.877Z"}
+9:18:09 AM [express] GET /api/competitors/1/analysis 200 in 1ms :: {"id":1,"competitorId":1,"domainAuthority":45,"organicKeywords":1,"organicTraffic":100,"topKeywords":[{"volume":300,"keyword":"devsinc","position":1},{"volume":150,"keyword":"devsinc contact","position":1},{"volume":100,"keyword":"software development company devsinc","position":3},{"volume":80,"keyword":"devsinc careers","position":4},{"volume":70,"keyword":"devsinc services","position":5}],"contentGaps":["AI solutions for business automation","AI-powered tools for workflow optimization","Affordable AI automation tools for small businesses","AI solutions for manufacturing process automation","AI-driven customer service automation solutions"],"strengths":["Strong branding and focus on software development services","High ranking for branded keywords","Clear and professional website design","Established presence in the software development industry"],"weaknesses":["Limited focus on AI and automation solutions","Low domain authority compared to larger competitors","Minimal organic traffic and keyword diversity","Lack of content targeting AI automation for specific industries"],"createdAt":"2026-03-10T09:18:08.877Z"}
+9:19:14 AM [express] POST /api/projects/4/competitors 201 in 69ms :: {"id":2,"projectId":4,"domain":"https://ranksol.com/","createdAt":"2026-03-10T09:19:14.904Z"}
+9:19:15 AM [express] GET /api/projects/4/competitors 200 in 1ms :: [{"id":2,"projectId":4,"domain":"https://ranksol.com/","createdAt":"2026-03-10T09:19:14.904Z"},{"id":1,"projectId":4,"domain":"https://www.devsinc.com/","createdAt":"2026-03-10T09:17:52.944Z"}]
+9:19:15 AM [express] GET /api/competitors/2/analysis 404 in 1ms :: {"message":"No analysis found"}
+9:19:34 AM [express] POST /api/competitors/2/analyze 201 in 6915ms :: {"id":2,"competitorId":2,"domainAuthority":45,"organicKeywords":1200,"organicTraffic":8500,"topKeywords":[{"volume":1200,"keyword":"best AI solutions for business automation","position":5},{"volume":900,"keyword":"AI solutions for small business automation","position":8},{"volume":800,"keyword":"AI automation software for businesses","position":6},{"volume":750,"keyword":"AI solutions for workflow automation","position":7},{"volume":700,"keyword":"AI solutions for customer service automation","position":9},{"volume":650,"keyword":"AI for IT process automation","position":10},{"volume":500,"keyword":"affordable AI automation tools","position":4},{"volume":450,"keyword":"AI solutions for manufacturing automation","position":6},{"volume":400,"keyword":"how AI automation can improve productivity","position":7},{"volume":350,"keyword":"top AI-powered automation tools","position":5}],"contentGaps":["Case studies showcasing AI solutions for specific industries","Detailed comparison of AI automation tools","Guides on implementing AI automation for beginners","In-depth articles on AI for IT process automation","Affordable AI solutions for startups and small businesses"],"strengths":["Strong domain authority and consistent organic traffic","Wide coverage of AI automation topics","Good keyword rankings for high-volume search terms","User-friendly website design and navigation","Effective use of call-to-action elements"],"weaknesses":["Limited focus on niche industries like manufacturing and IT","Lack of detailed tutorials or implementation guides","Minimal presence in long-tail, low-competition keywords","Content updates are infrequent","Limited backlink profile compared to competitors"],"createdAt":"2026-03-10T09:19:34.626Z"}
+9:19:34 AM [express] GET /api/competitors/2/analysis 200 in 2ms :: {"id":2,"competitorId":2,"domainAuthority":45,"organicKeywords":1200,"organicTraffic":8500,"topKeywords":[{"volume":1200,"keyword":"best AI solutions for business automation","position":5},{"volume":900,"keyword":"AI solutions for small business automation","position":8},{"volume":800,"keyword":"AI automation software for businesses","position":6},{"volume":750,"keyword":"AI solutions for workflow automation","position":7},{"volume":700,"keyword":"AI solutions for customer service automation","position":9},{"volume":650,"keyword":"AI for IT process automation","position":10},{"volume":500,"keyword":"affordable AI automation tools","position":4},{"volume":450,"keyword":"AI solutions for manufacturing automation","position":6},{"volume":400,"keyword":"how AI automation can improve productivity","position":7},{"volume":350,"keyword":"top AI-powered automation tools","position":5}],"contentGaps":["Case studies showcasing AI solutions for specific industries","Detailed comparison of AI automation tools","Guides on implementing AI automation for beginners","In-depth articles on AI for IT process automation","Affordable AI solutions for startups and small businesses"],"strengths":["Strong domain authority and consistent organic traffic","Wide coverage of AI automation topics","Good keyword rankings for high-volume search terms","User-friendly website design and navigation","Effective use of call-to-action elements"],"weaknesses":["Limited focus on niche industries like manufacturing and IT","Lack of detailed tutorials or implementation guides","Minimal presence in long-tail, low-competition keywords","Content updates are infrequent","Limited backlink profile compared to competitors"],"createdAt":"2026-03-10T09:19:34.626Z"}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m9:23:20 AM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m9:23:37 AM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/app-sidebar.tsx, /src/index.css[22m

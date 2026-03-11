@@ -1,0 +1,16 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+[1G[0K[dotenv@17.3.1] injecting env (0) from .env [2m-- tip: ⚙️  write to custom object with { processEnv: myObject }[0m
+[dotenv@17.3.1] injecting env (0) from .env [2m-- tip: 🤖 agentic secret storage: https://dotenvx.com/as2[0m
+[dotenv@17.3.1] injecting env (0) from .env [2m-- tip: ⚙️  override existing env vars with { override: true }[0m
+[dotenv@17.3.1] injecting env (0) from .env [2m-- tip: ⚙️  enable debug logging with { debug: true }[0m
+[dotenv@17.3.1] injecting env (0) from .env [2m-- tip: 🛡️ auth for agents: https://vestauth.com[0m
+[2m9:23:45 AM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m Re-optimizing dependencies because lockfile has changed
+9:23:45 AM [express] serving on port 5000
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+9:23:59 AM [express] GET /api/projects 200 in 19ms :: [{"id":4,"name":"Ranksol","domain":"https://ranksol.com/contact-us/","createdAt":"2026-03-10T07:13:11.374Z"},{"id":3,"name":"Test SEO Project","domain":"testseo.com","createdAt":"2026-03-10T06:50:32.407Z"},{"id":2,"name":"Fitness Authority","domain":"fitnessauthority.io","createdAt":"2026-03-10T06:45:59.932Z"},{"id":1,"name":"TechBlog Pro","domain":"techblogpro.com","createdAt":"2026-03-10T06:45:59.885Z"}]
+9:24:04 AM [express] GET /api/projects 304 in 2ms :: [{"id":4,"name":"Ranksol","domain":"https://ranksol.com/contact-us/","createdAt":"2026-03-10T07:13:11.374Z"},{"id":3,"name":"Test SEO Project","domain":"testseo.com","createdAt":"2026-03-10T06:50:32.407Z"},{"id":2,"name":"Fitness Authority","domain":"fitnessauthority.io","createdAt":"2026-03-10T06:45:59.932Z"},{"id":1,"name":"TechBlog Pro","domain":"techblogpro.com","createdAt":"2026-03-10T06:45:59.885Z"}]
+9:25:55 AM [express] GET /api/dashboard-stats 304 in 38ms :: {"totalProjects":4,"totalKeywords":121,"totalClusters":19,"totalContentPlans":7,"recentProjects":[{"id":4,"name":"Ranksol","domain":"https://ranksol.com/contact-us/","createdAt":"2026-03-10T07:13:11.374Z"},{"id":3,"name":"Test SEO Project","domain":"testseo.com","createdAt":"2026-03-10T06:50:32.407Z"},{"id":2,"name":"Fitness Authority","domain":"fitnessauthority.io","createdAt":"2026-03-10T06:45:59.932Z"},{"id":1,"name":"TechBlog Pro","domain":"techblogpro.com","createdAt":"2026-03-10T06:45:59.885Z"}]}

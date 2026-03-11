@@ -1,0 +1,182 @@
+You are a senior AI SaaS architect.
+
+Build a production-ready AI SEO SaaS tool similar to Ahrefs.
+
+The tool analyzes a website and generates SEO reports.
+
+APP NAME
+AI SEO Analyzer
+
+MAIN WORKFLOW
+
+User enters website URL
+
+Example
+https://example.com
+
+The system performs
+
+website crawling
+keyword extraction
+long tail keyword generation
+keyword clustering
+SEO scoring
+authority metrics
+report generation
+
+TECH STACK
+
+Backend
+FastAPI Python
+
+Frontend
+React + Tailwind + Vite
+
+AI
+OpenAI API
+SentenceTransformers
+
+ML
+scikit-learn
+
+Vector DB
+FAISS
+
+Database
+PostgreSQL
+
+Crawler
+BeautifulSoup
+Requests
+
+FEATURES
+
+1 Website Crawler
+
+Crawl up to 50 pages of the domain.
+
+Extract
+
+titles
+meta descriptions
+H1 H2
+content
+internal links
+
+2 Keyword Extractor
+
+Use TF-IDF and KeyBERT to extract keywords from page content.
+
+3 Long Tail Keyword Generator
+
+Use Google autocomplete scraping.
+
+Example API
+
+http://suggestqueries.google.com/complete/search?client=firefox&q=keyword
+
+4 Keyword Difficulty Estimator
+
+Estimate difficulty based on
+
+SERP results
+domain authority
+backlinks
+
+5 Domain Authority Estimator
+
+Calculate domain authority using
+
+backlink count
+referring domains
+content quality
+domain age estimate
+
+6 Page Authority Analyzer
+
+For each page calculate
+
+page authority score
+keyword density
+internal link count
+
+7 Backlink Analyzer
+
+Extract backlinks from
+
+HTML links
+external domains
+
+8 Keyword Clustering Engine
+
+Use SentenceTransformers
+
+model
+all-MiniLM-L6-v2
+
+Cluster with KMeans
+
+9 Content Idea Generator
+
+Use OpenAI to generate
+
+blog titles
+content outlines
+SEO optimized articles
+
+10 SEO Score Engine
+
+Calculate SEO score from
+
+page speed
+meta tags
+keyword usage
+content length
+backlinks
+
+OUTPUT REPORT
+
+Domain Authority
+Page Authority
+Backlinks
+Top Keywords
+Low Competition Keywords
+SEO Issues
+Content Opportunities
+
+API ENDPOINTS
+
+POST /analyze-site
+POST /generate-keywords
+GET /report/{project_id}
+GET /clusters
+GET /content-ideas
+
+FOLDER STRUCTURE
+
+backend
+main.py
+crawler.py
+keyword_extractor.py
+keyword_generator.py
+seo_analyzer.py
+clustering_engine.py
+ai_content.py
+
+database
+models.py
+db.py
+
+frontend
+dashboard
+keyword-explorer
+site-audit
+reports
+
+deployment
+Dockerfile
+docker-compose.yml
+
+Make the system modular and scalable.
+
+Also create instructions to run the project locally.
