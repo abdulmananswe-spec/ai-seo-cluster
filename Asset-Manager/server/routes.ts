@@ -2,16 +2,34 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertProjectSchema } from "@shared/schema";
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { crawlSite } from "./crawler";
 import { extractKeywords } from "./keyword-extractor";
 import { scoreSite } from "./seo-scorer";
 
-function getOpenAIClient(): OpenAI {
-  return new OpenAI({
-    apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-    baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-  });
+function getGeminiClient(): GoogleGenerativeAI {
+  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "AIzaSyB7eDZXqtOeM4fmLTS5EfU24P8WgmmUG8A");
+}
+
+async function generateJsonResponse(prompt: string, systemPrompt?: string): Promise<string> {
+  const genAI = getGeminiClient();
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: systemPrompt });
+
+  try {
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+      }
+    });
+    
+    return result.response.text() || "{}";
+  } catch (error: any) {
+    if (error.message && (error.message.includes("API_KEY_INVALID") || error.message.includes("API key expired"))) {
+      throw new Error("Your Gemini API key has expired or is invalid. Please update it in the server configuration.");
+    }
+    throw error;
+  }
 }
 
 function parseId(id: string): number | null {
@@ -97,24 +115,10 @@ export async function registerRoutes(
     if (!seedKeyword) return res.status(400).json({ message: "seedKeyword is required" });
 
     try {
-      const openai = getOpenAIClient();
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: `You are an SEO keyword research expert. Given a seed keyword, generate 20-30 highly relevant long-tail keywords that people actually search for. Include a mix of informational, commercial, and transactional intent keywords. Return ONLY a JSON object with a "keywords" key containing an array of strings.`
-          },
-          {
-            role: "user",
-            content: `Generate long-tail keywords for the seed keyword: "${seedKeyword}"`
-          }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.8,
-      });
-
-      const content = response.choices[0]?.message?.content || '{"keywords":[]}';
+      const systemPrompt = `You are an SEO keyword research expert. Given a seed keyword, generate 20-30 highly relevant long-tail keywords that people actually search for. Include a mix of informational, commercial, and transactional intent keywords. Return ONLY a JSON object with a "keywords" key containing an array of strings.`;
+      const prompt = `Generate long-tail keywords for the seed keyword: "${seedKeyword}"`;
+      
+      const content = await generateJsonResponse(prompt, systemPrompt);
       let parsed;
       try { parsed = JSON.parse(content); } catch { parsed = { keywords: [] }; }
       const kwList: string[] = Array.isArray(parsed) ? parsed : (parsed.keywords || []);
@@ -164,25 +168,11 @@ export async function registerRoutes(
     }
 
     try {
-      const openai = getOpenAIClient();
       const kwTexts = kws.map(k => k.keyword);
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: `You are an SEO clustering expert. Group the given keywords into semantic clusters based on topic similarity and search intent. Each cluster should have a descriptive name and a brief topic description. Return a JSON object with this structure: {"clusters": [{"name": "Cluster Name", "topic": "Brief topic description", "keywords": ["keyword1", "keyword2"]}]}. Create between 3-8 clusters depending on the number and diversity of keywords. Every keyword must be assigned to exactly one cluster.`
-          },
-          {
-            role: "user",
-            content: `Cluster these keywords:\n${kwTexts.join("\n")}`
-          }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.3,
-      });
+      const systemPrompt = `You are an SEO clustering expert. Group the given keywords into semantic clusters based on topic similarity and search intent. Each cluster should have a descriptive name and a brief topic description. Return a JSON object with this structure: {"clusters": [{"name": "Cluster Name", "topic": "Brief topic description", "keywords": ["keyword1", "keyword2"]}]}. Create between 3-8 clusters depending on the number and diversity of keywords. Every keyword must be assigned to exactly one cluster.`;
+      const prompt = `Cluster these keywords:\n${kwTexts.join("\n")}`;
 
-      const content = response.choices[0]?.message?.content || '{"clusters":[]}';
+      const content = await generateJsonResponse(prompt, systemPrompt);
       let parsed;
       try { parsed = JSON.parse(content); } catch { parsed = { clusters: [] }; }
       const clusterData = parsed.clusters || [];
@@ -244,24 +234,10 @@ export async function registerRoutes(
     const kwTexts = clusterKws.map(ck => ck.keyword);
 
     try {
-      const openai = getOpenAIClient();
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: `You are an expert SEO content strategist. Generate a comprehensive content plan for the given keyword cluster. Return a JSON object with: {"pillarTitle": "Main pillar article title", "supportingTitles": ["Supporting article 1", "Supporting article 2", ...], "metaTitle": "SEO meta title (60 chars max)", "metaDescription": "SEO meta description (155 chars max)", "searchIntent": "informational|commercial|transactional|navigational", "headings": ["H2 heading 1", "H2 heading 2", ...], "internalLinks": [{"from": "Article Title", "to": "Another Article Title", "anchor": "suggested anchor text"}]}`
-          },
-          {
-            role: "user",
-            content: `Create a content plan for the cluster "${cluster.clusterName}" (${cluster.topic}) with these keywords:\n${kwTexts.join("\n")}`
-          }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.5,
-      });
+      const systemPrompt = `You are an expert SEO content strategist. Generate a comprehensive content plan for the given keyword cluster. Return a JSON object with: {"pillarTitle": "Main pillar article title", "supportingTitles": ["Supporting article 1", "Supporting article 2", ...], "metaTitle": "SEO meta title (60 chars max)", "metaDescription": "SEO meta description (155 chars max)", "searchIntent": "informational|commercial|transactional|navigational", "headings": ["H2 heading 1", "H2 heading 2", ...], "internalLinks": [{"from": "Article Title", "to": "Another Article Title", "anchor": "suggested anchor text"}]}`;
+      const prompt = `Create a content plan for the cluster "${cluster.clusterName}" (${cluster.topic}) with these keywords:\n${kwTexts.join("\n")}`;
 
-      const content = response.choices[0]?.message?.content || "{}";
+      const content = await generateJsonResponse(prompt, systemPrompt);
       let parsed;
       try { parsed = JSON.parse(content); } catch {
         return res.status(500).json({ message: "Failed to parse content plan" });
@@ -295,30 +271,16 @@ export async function registerRoutes(
       return res.status(400).json({ message: "No clusters found. Generate clusters first." });
     }
 
-    const openai = getOpenAIClient();
     const results = [];
     for (const cluster of cls) {
       const clusterKws = await storage.getClusterKeywords(cluster.id);
       const kwTexts = clusterKws.map(ck => ck.keyword);
 
       try {
-        const response = await openai.chat.completions.create({
-          model: "gpt-4o",
-          messages: [
-            {
-              role: "system",
-              content: `You are an expert SEO content strategist. Generate a comprehensive content plan for the given keyword cluster. Return a JSON object with: {"pillarTitle": "Main pillar article title", "supportingTitles": ["Supporting article 1", "Supporting article 2", ...], "metaTitle": "SEO meta title (60 chars max)", "metaDescription": "SEO meta description (155 chars max)", "searchIntent": "informational|commercial|transactional|navigational", "headings": ["H2 heading 1", "H2 heading 2", ...], "internalLinks": [{"from": "Article Title", "to": "Another Article Title", "anchor": "suggested anchor text"}]}`
-            },
-            {
-              role: "user",
-              content: `Create a content plan for the cluster "${cluster.clusterName}" (${cluster.topic}) with these keywords:\n${kwTexts.join("\n")}`
-            }
-          ],
-          response_format: { type: "json_object" },
-          temperature: 0.5,
-        });
-
-        const content = response.choices[0]?.message?.content || "{}";
+        const systemPrompt = `You are an expert SEO content strategist. Generate a comprehensive content plan for the given keyword cluster. Return a JSON object with: {"pillarTitle": "Main pillar article title", "supportingTitles": ["Supporting article 1", "Supporting article 2", ...], "metaTitle": "SEO meta title (60 chars max)", "metaDescription": "SEO meta description (155 chars max)", "searchIntent": "informational|commercial|transactional|navigational", "headings": ["H2 heading 1", "H2 heading 2", ...], "internalLinks": [{"from": "Article Title", "to": "Another Article Title", "anchor": "suggested anchor text"}]}`;
+        const prompt = `Create a content plan for the cluster "${cluster.clusterName}" (${cluster.topic}) with these keywords:\n${kwTexts.join("\n")}`;
+        
+        const content = await generateJsonResponse(prompt, systemPrompt);
         const parsed = JSON.parse(content);
 
         await storage.deleteContentPlansByCluster(cluster.id);
@@ -359,24 +321,10 @@ export async function registerRoutes(
     if (!keyword) return res.status(400).json({ message: "keyword is required" });
 
     try {
-      const openai = getOpenAIClient();
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: `You are an expert SEO analyst. Analyze the given keyword as if you have access to SERP data. Provide realistic estimates based on your knowledge. Return a JSON object with: {"difficulty": 0-100 number, "searchVolume": estimated monthly searches number, "cpc": estimated cost per click number, "intent": "informational|commercial|transactional|navigational", "serpFeatures": ["featured_snippet", "people_also_ask", "video_results", "image_pack", "local_pack", "knowledge_panel", "shopping_results", "news_results", "site_links"], "topResults": [{"position": 1, "title": "Result title", "url": "https://example.com/page", "description": "Meta description"}] (provide 5-10 results)}`
-          },
-          {
-            role: "user",
-            content: `Analyze the SERP for the keyword: "${keyword}"`
-          }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.4,
-      });
+      const systemPrompt = `You are an expert SEO analyst. Analyze the given keyword as if you have access to SERP data. Provide realistic estimates based on your knowledge. Return a JSON object with: {"difficulty": 0-100 number, "searchVolume": estimated monthly searches number, "cpc": estimated cost per click number, "intent": "informational|commercial|transactional|navigational", "serpFeatures": ["featured_snippet", "people_also_ask", "video_results", "image_pack", "local_pack", "knowledge_panel", "shopping_results", "news_results", "site_links"], "topResults": [{"position": 1, "title": "Result title", "url": "https://example.com/page", "description": "Meta description"}] (provide 5-10 results)}`;
+      const prompt = `Analyze the SERP for the keyword: "${keyword}"`;
 
-      const content = response.choices[0]?.message?.content || "{}";
+      const content = await generateJsonResponse(prompt, systemPrompt);
       const parsed = JSON.parse(content);
 
       const analysis = await storage.createSerpAnalysis({
@@ -417,7 +365,6 @@ export async function registerRoutes(
     }
 
     try {
-      const openai = getOpenAIClient();
       const existingEntries = await storage.getRankEntriesByProject(projectId);
       const previousPositions = new Map<string, number>();
       for (const e of existingEntries) {
@@ -427,23 +374,10 @@ export async function registerRoutes(
       }
 
       const kwTexts = kws.map(k => k.keyword).slice(0, 20);
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: `You are an SEO rank tracking tool. Given a domain and keywords, estimate the current Google search position for each keyword. Return a JSON object: {"rankings": [{"keyword": "keyword text", "position": 1-100 or null if not ranking, "url": "https://domain.com/page-that-ranks"}]}`
-          },
-          {
-            role: "user",
-            content: `Estimate Google rankings for domain "${project.domain}" for these keywords:\n${kwTexts.join("\n")}`
-          }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.5,
-      });
+      const systemPrompt = `You are an SEO rank tracking tool. Given a domain and keywords, estimate the current Google search position for each keyword. Return a JSON object: {"rankings": [{"keyword": "keyword text", "position": 1-100 or null if not ranking, "url": "https://domain.com/page-that-ranks"}]}`;
+      const prompt = `Estimate Google rankings for domain "${project.domain}" for these keywords:\n${kwTexts.join("\n")}`;
 
-      const content = response.choices[0]?.message?.content || '{"rankings":[]}';
+      const content = await generateJsonResponse(prompt, systemPrompt);
       const parsed = JSON.parse(content);
       const rankings = parsed.rankings || [];
 
@@ -505,26 +439,10 @@ export async function registerRoutes(
     const projectKws = await storage.getKeywordsByProject(competitor.projectId);
 
     try {
-      const openai = getOpenAIClient();
-      await storage.deleteCompetitorAnalysis(competitorId);
+      const systemPrompt = `You are an expert SEO competitor analyst. Analyze the given competitor domain and provide detailed insights. Return a JSON object: {"domainAuthority": 0-100, "organicKeywords": estimated number, "organicTraffic": estimated monthly traffic, "topKeywords": [{"keyword": "text", "position": 1-10, "volume": monthly volume}] (5-10 keywords), "contentGaps": ["topic areas the competitor covers that we don't"] (3-5 items), "strengths": ["what they do well"] (3-5 items), "weaknesses": ["where they fall short"] (3-5 items)}`;
+      const prompt = `Analyze competitor domain "${competitor.domain}" compared to "${project?.domain || 'our site'}". Our keywords include: ${projectKws.slice(0, 10).map(k => k.keyword).join(", ")}`;
 
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: `You are an expert SEO competitor analyst. Analyze the given competitor domain and provide detailed insights. Return a JSON object: {"domainAuthority": 0-100, "organicKeywords": estimated number, "organicTraffic": estimated monthly traffic, "topKeywords": [{"keyword": "text", "position": 1-10, "volume": monthly volume}] (5-10 keywords), "contentGaps": ["topic areas the competitor covers that we don't"] (3-5 items), "strengths": ["what they do well"] (3-5 items), "weaknesses": ["where they fall short"] (3-5 items)}`
-          },
-          {
-            role: "user",
-            content: `Analyze competitor domain "${competitor.domain}" compared to "${project?.domain || 'our site'}". Our keywords include: ${projectKws.slice(0, 10).map(k => k.keyword).join(", ")}`
-          }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.4,
-      });
-
-      const content = response.choices[0]?.message?.content || "{}";
+      const content = await generateJsonResponse(prompt, systemPrompt);
       const parsed = JSON.parse(content);
 
       const analysis = await storage.createCompetitorAnalysis({
@@ -560,24 +478,10 @@ export async function registerRoutes(
     if (!domain) return res.status(400).json({ message: "domain is required" });
 
     try {
-      const openai = getOpenAIClient();
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: `You are an expert backlink analyst. Analyze the given domain's backlink profile and provide realistic estimates. Return a JSON object: {"totalBacklinks": number, "referringDomains": number, "domainAuthority": 0-100, "topBacklinks": [{"source": "referring-domain.com", "target": "https://domain.com/page", "anchor": "anchor text", "authority": 0-100, "type": "dofollow|nofollow"}] (8-12 backlinks), "anchorDistribution": [{"anchor": "text", "count": number, "percentage": number}] (6-8 anchors)}`
-          },
-          {
-            role: "user",
-            content: `Analyze the backlink profile for domain: "${domain}"`
-          }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.4,
-      });
+      const systemPrompt = `You are an expert backlink analyst. Analyze the given domain's backlink profile and provide realistic estimates. Return a JSON object: {"totalBacklinks": number, "referringDomains": number, "domainAuthority": 0-100, "topBacklinks": [{"source": "referring-domain.com", "target": "https://domain.com/page", "anchor": "anchor text", "authority": 0-100, "type": "dofollow|nofollow"}] (8-12 backlinks), "anchorDistribution": [{"anchor": "text", "count": number, "percentage": number}] (6-8 anchors)}`;
+      const prompt = `Analyze the backlink profile for domain: "${domain}"`;
 
-      const content = response.choices[0]?.message?.content || "{}";
+      const content = await generateJsonResponse(prompt, systemPrompt);
       const parsed = JSON.parse(content);
 
       const analysis = await storage.createBacklinkAnalysis({
@@ -640,25 +544,11 @@ export async function registerRoutes(
     }
 
     try {
-      const openai = getOpenAIClient();
       const kwTexts = kws.slice(0, 20).map(k => k.keyword);
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: `You are simulating Google Search Console data for an SEO tool. Generate realistic search performance data for the given domain and keywords. Return a JSON object: {"data": [{"query": "search query", "clicks": number, "impressions": number, "ctr": 0-1 decimal, "position": 1-100 decimal, "page": "/page-path", "date": "2024-03-01"}]}. Generate data for each keyword with realistic numbers. Use dates within the last 30 days.`
-          },
-          {
-            role: "user",
-            content: `Generate Search Console data for domain "${project.domain}" with these keywords:\n${kwTexts.join("\n")}`
-          }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.6,
-      });
+      const systemPrompt = `You are simulating Google Search Console data for an SEO tool. Generate realistic search performance data for the given domain and keywords. Return a JSON object: {"data": [{"query": "search query", "clicks": number, "impressions": number, "ctr": 0-1 decimal, "position": 1-100 decimal, "page": "/page-path", "date": "2024-03-01"}]}. Generate data for each keyword with realistic numbers. Use dates within the last 30 days.`;
+      const prompt = `Generate Search Console data for domain "${project.domain}" with these keywords:\n${kwTexts.join("\n")}`;
 
-      const content = response.choices[0]?.message?.content || '{"data":[]}';
+      const content = await generateJsonResponse(prompt, systemPrompt);
       const parsed = JSON.parse(content);
       const simData = parsed.data || [];
 
@@ -774,24 +664,12 @@ export async function registerRoutes(
 
         let aiEnhancedKeywords = extractedKws;
         try {
-          const openai = getOpenAIClient();
           const topKws = extractedKws.slice(0, 30).map(k => k.keyword);
-          const response = await openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: [
-              {
-                role: "system",
-                content: `You are an SEO expert. Given a list of keywords extracted from a website, estimate the search difficulty (0-100), monthly search volume, and assign a topical cluster name to each. Return JSON: {"keywords": [{"keyword": "text", "difficulty": 0-100, "searchVolume": number, "cluster": "cluster name"}]}`
-              },
-              {
-                role: "user",
-                content: `Analyze these keywords extracted from ${parsedUrl.hostname}:\n${topKws.join("\n")}`
-              }
-            ],
-            response_format: { type: "json_object" },
-            temperature: 0.3,
-          });
-          const aiData = JSON.parse(response.choices[0]?.message?.content || '{"keywords":[]}');
+          const systemPrompt = `You are an SEO expert. Given a list of keywords extracted from a website, estimate the search difficulty (0-100), monthly search volume, and assign a topical cluster name to each. Return JSON: {"keywords": [{"keyword": "text", "difficulty": 0-100, "searchVolume": number, "cluster": "cluster name"}]}`;
+          const prompt = `Analyze these keywords extracted from ${parsedUrl.hostname}:\n${topKws.join("\n")}`;
+
+          const content = await generateJsonResponse(prompt, systemPrompt);
+          const aiData = JSON.parse(content);
           const aiMap = new Map<string, { difficulty: number; searchVolume: number; cluster: string }>();
           for (const k of (aiData.keywords || [])) {
             aiMap.set(k.keyword, k);
@@ -818,23 +696,11 @@ export async function registerRoutes(
 
         let domainAuthority = seoResult.overallScore;
         try {
-          const openai = getOpenAIClient();
-          const resp = await openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: [
-              {
-                role: "system",
-                content: `You are an SEO domain authority estimator. Given a domain, its on-page SEO score, number of pages crawled, and top keywords, estimate the domain authority (0-100). Also suggest content opportunities. Return JSON: {"domainAuthority": number, "contentOpportunities": ["opportunity 1", "opportunity 2", ...]}`
-              },
-              {
-                role: "user",
-                content: `Domain: ${parsedUrl.hostname}\nOn-page SEO score: ${seoResult.overallScore}\nPages crawled: ${crawledData.length}\nTop keywords: ${extractedKws.slice(0, 10).map(k => k.keyword).join(", ")}`
-              }
-            ],
-            response_format: { type: "json_object" },
-            temperature: 0.3,
-          });
-          const aiDa = JSON.parse(resp.choices[0]?.message?.content || "{}");
+          const systemPrompt = `You are an SEO domain authority estimator. Given a domain, its on-page SEO score, number of pages crawled, and top keywords, estimate the domain authority (0-100). Also suggest content opportunities. Return JSON: {"domainAuthority": number, "contentOpportunities": ["opportunity 1", "opportunity 2", ...]}`;
+          const prompt = `Domain: ${parsedUrl.hostname}\nOn-page SEO score: ${seoResult.overallScore}\nPages crawled: ${crawledData.length}\nTop keywords: ${extractedKws.slice(0, 10).map(k => k.keyword).join(", ")}`;
+
+          const content = await generateJsonResponse(prompt, systemPrompt);
+          const aiDa = JSON.parse(content || "{}");
           domainAuthority = aiDa.domainAuthority ?? seoResult.overallScore;
 
           const totalIssues = seoResult.pageScores.reduce((sum, ps) => sum + ps.issues.length, 0);
@@ -891,26 +757,11 @@ export async function registerRoutes(
 
     try {
       const keywords = await storage.getExtractedKeywords(id);
-      const openai = getOpenAIClient();
-
       const topKws = keywords.slice(0, 20).map(k => k.keyword);
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: `You are an expert SEO content strategist. Based on the extracted keywords from a website, generate content ideas including blog titles, content outlines, and SEO-optimized article suggestions. Return JSON: {"ideas": [{"title": "Blog Title", "type": "blog|guide|comparison|listicle", "targetKeyword": "main keyword", "outline": ["H2 Section 1", "H2 Section 2", ...], "estimatedTraffic": number, "priority": "high|medium|low"}]} Generate 8-12 ideas.`
-          },
-          {
-            role: "user",
-            content: `Generate content ideas for ${analysis.url} based on these keywords:\n${topKws.join("\n")}`
-          }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.6,
-      });
+      const systemPrompt = `You are an expert SEO content strategist. Based on the extracted keywords from a website, generate content ideas including blog titles, content outlines, and SEO-optimized article suggestions. Return JSON: {"ideas": [{"title": "Blog Title", "type": "blog|guide|comparison|listicle", "targetKeyword": "main keyword", "outline": ["H2 Section 1", "H2 Section 2", ...], "estimatedTraffic": number, "priority": "high|medium|low"}]} Generate 8-12 ideas.`;
+      const prompt = `Generate content ideas for ${analysis.url} based on these keywords:\n${topKws.join("\n")}`;
 
-      const content = response.choices[0]?.message?.content || '{"ideas":[]}';
+      const content = await generateJsonResponse(prompt, systemPrompt);
       const parsed = JSON.parse(content);
       res.json(parsed.ideas || []);
     } catch (error: any) {
@@ -924,24 +775,10 @@ export async function registerRoutes(
     if (!keyword) return res.status(400).json({ message: "keyword is required" });
 
     try {
-      const openai = getOpenAIClient();
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: `You are an SEO keyword research tool. Given a seed keyword, generate long-tail keyword variations that people actually search for. Include question-based keywords, comparison keywords, and specific intent keywords. Return JSON: {"longTailKeywords": [{"keyword": "long tail keyword", "intent": "informational|commercial|transactional", "estimatedVolume": number, "difficulty": 0-100}]} Generate 15-20 keywords.`
-          },
-          {
-            role: "user",
-            content: `Generate long-tail keywords for: "${keyword}"`
-          }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.7,
-      });
+      const systemPrompt = `You are an SEO keyword research tool. Given a seed keyword, generate long-tail keyword variations that people actually search for. Include question-based keywords, comparison keywords, and specific intent keywords. Return JSON: {"longTailKeywords": [{"keyword": "long tail keyword", "intent": "informational|commercial|transactional", "estimatedVolume": number, "difficulty": 0-100}]} Generate 15-20 keywords.`;
+      const prompt = `Generate long-tail keywords for: "${keyword}"`;
 
-      const content = response.choices[0]?.message?.content || '{"longTailKeywords":[]}';
+      const content = await generateJsonResponse(prompt, systemPrompt);
       const parsed = JSON.parse(content);
       res.json(parsed.longTailKeywords || []);
     } catch (error: any) {

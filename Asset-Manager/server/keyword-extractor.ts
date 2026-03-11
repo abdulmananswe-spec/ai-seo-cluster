@@ -92,12 +92,12 @@ export function extractKeywords(pages: CrawledPageData[], maxKeywords: number = 
   const minFreq = 2;
   const candidates: ExtractedKeywordData[] = [];
 
-  for (const [keyword, frequency] of globalFrequency.entries()) {
+  for (const [keyword, frequency] of Array.from(globalFrequency.entries())) {
     if (frequency < minFreq) continue;
     if (keyword.length < 3) continue;
 
     const words = keyword.split(" ");
-    if (words.some(w => STOP_WORDS.has(w))) continue;
+    if (words.some((w: string) => STOP_WORDS.has(w))) continue;
 
     const tfidfScore = globalTfidf.get(keyword) || 0;
     const isLongTail = words.length >= 3;

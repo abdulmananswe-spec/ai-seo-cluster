@@ -163,8 +163,8 @@ export async function crawlSite(startUrl: string, maxPages: number = 50): Promis
         h2s,
         bodyText: bodyText.slice(0, 10000),
         wordCount: words.length,
-        internalLinks: [...new Set(internalLinks)],
-        externalLinks: [...new Set(externalLinks)],
+        internalLinks: Array.from(new Set(internalLinks)),
+        externalLinks: Array.from(new Set(externalLinks)),
         images,
         statusCode: response.status,
       });

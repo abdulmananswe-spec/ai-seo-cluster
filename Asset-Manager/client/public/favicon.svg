@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="ai-seo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="120" fill="url(#ai-seo-grad)"/>
+  <!-- Main large sparkle (center) -->
+  <path d="M256 120 C256 195 195 256 120 256 C195 256 256 317 256 392 C256 317 317 256 392 256 C317 256 256 195 256 120 Z" fill="white"/>
+  <!-- Small secondary sparkle -->
+  <path d="M380 100 C380 120 360 140 340 140 C360 140 380 160 380 180 C380 160 400 140 420 140 C400 140 380 120 380 100 Z" fill="white" opacity="0.9"/>
+  <!-- Another smaller sparkle -->
+  <path d="M140 360 C140 375 125 390 110 390 C125 390 140 405 140 420 C140 405 155 390 170 390 C155 390 140 375 140 360 Z" fill="white" opacity="0.8"/>
+</svg>

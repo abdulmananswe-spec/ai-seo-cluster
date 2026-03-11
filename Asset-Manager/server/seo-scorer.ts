@@ -212,7 +212,7 @@ export function scoreSite(pages: CrawledPageData[]): SiteSeoResult {
     .map(([issue, count]) => `${issue} (${count} pages)`);
 
   const issuesByCategory: Record<string, number> = {};
-  for (const [issue, count] of issueCount.entries()) {
+  for (const [issue, count] of Array.from(issueCount.entries())) {
     issuesByCategory[issue] = count;
   }
 
