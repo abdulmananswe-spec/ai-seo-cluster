@@ -61,6 +61,7 @@ export async function registerRoutes(
 
   app.post("/api/projects", async (req, res) => {
     try {
+      console.log("[API] Create Project request body:", JSON.stringify(req.body));
       const parsed = insertProjectSchema.safeParse(req.body);
       if (!parsed.success) {
         return res.status(400).json({ message: "Invalid project data", details: parsed.error.message });

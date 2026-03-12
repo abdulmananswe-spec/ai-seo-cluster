@@ -12,20 +12,16 @@ declare module "http" {
   }
 }
 
-if (!process.env.VERCEL) {
-  app.use(
-    express.json({
-      verify: (req, _res, buf) => {
-        req.rawBody = buf;
-      },
-    }),
-  );
-  app.use(express.urlencoded({ extended: false }));
-} else {
-  // On Vercel, bodies are already parsed and available in req.body
-  // We just need to ensure the app knows how to handle them
-  app.use(express.json());
-}
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// Re-add raw body for verification if needed
+app.use((req, _res, next) => {
+  if (req.method === "POST" || req.method === "PUT" || req.method === "PATCH") {
+    req.rawBody = JSON.stringify(req.body);
+  }
+  next();
+});
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -71,6 +67,19 @@ export const initApp = async () => {
     await seedDatabase().catch((err) => console.error("Seed error:", err));
   } else {
     log("Running on Vercel, skipping database seeding to save execution time.");
+  }
+
+  // Test DB connection
+  try {
+    const { db } = await import("./db");
+    const { sql } = await import("drizzle-orm");
+    await db.execute(sql`SELECT 1`);
+    log("Database connection successful.");
+  } catch (err: any) {
+    console.error("Database connection failed:", err);
+    if (process.env.VERCEL) {
+      throw new Error(`Database connection failed: ${err.message}. Ensure POSTGRES_URL is correct.`);
+    }
   }
 
   await registerRoutes(httpServer, app);

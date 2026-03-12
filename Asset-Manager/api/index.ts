@@ -2,17 +2,21 @@ import { app, initApp } from "../server/index";
 
 let isInitialized = false;
 
-// Re-enable Vercel's default body parsing
+// Disable Vercel's default body parsing to let Express handle it securely
 export const config = {
   api: {
-    bodyParser: true,
+    bodyParser: false,
   },
 };
 
-// Standard Vercel Node.js handler
 export default async (req: any, res: any) => {
   console.log(`[Vercel Serverless] Handling request: ${req.method} ${req.url}`);
   
+  // Ensure POSTGRES_URL is set (drizzle-orm/vercel-postgres needs it)
+  if (!process.env.POSTGRES_URL && process.env.DATABASE_URL) {
+    process.env.POSTGRES_URL = process.env.DATABASE_URL;
+  }
+
   try {
     if (!isInitialized) {
       console.log("[Vercel Serverless] Starting initialization...");
