@@ -176,7 +176,7 @@ export default function Dashboard() {
                 <div className="flex-1">
                   <h3 className="text-base font-semibold">Build Topical Authority with AI</h3>
                   <p className="text-sm text-muted-foreground mt-0.5">
-                    Automatically discover keywords, cluster topics, and generate SEO content strategies powered by AI.
+                    Automatically discover keywords, cluster topics, and generate SEO content strategies Powered by Abdul Manan.
                   </p>
                 </div>
                 <Link href="/projects">

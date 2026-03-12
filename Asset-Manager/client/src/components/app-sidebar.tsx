@@ -124,10 +124,19 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border px-4 py-3">
-        <p className="text-xs text-muted-foreground text-center">
-          Powered by AI
-        </p>
+      <SidebarFooter className="border-t border-sidebar-border/50 px-4 py-4 bg-sidebar/50 backdrop-blur-sm">
+        <div className="flex flex-col items-center gap-1 group cursor-default">
+          <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-muted-foreground/40 group-hover:text-primary/50 transition-colors">
+            Crafted with Precision
+          </p>
+          <div className="flex items-center gap-2">
+            <div className="h-px w-4 bg-gradient-to-r from-transparent to-sidebar-border" />
+            <p className="text-xs font-semibold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent transition-all duration-300 group-hover:scale-105 group-hover:tracking-wider">
+              Powered by Abdul Manan
+            </p>
+            <div className="h-px w-4 bg-gradient-to-l from-transparent to-sidebar-border" />
+          </div>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
