@@ -2,10 +2,10 @@ import { app, initApp } from "../server/index";
 
 let isInitialized = false;
 
-// Disable Vercel's default body parsing to let Express handle it securely
+// Enable Vercel's default body parsing
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: true,
   },
 };
 

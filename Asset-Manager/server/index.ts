@@ -12,26 +12,28 @@ declare module "http" {
   }
 }
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-// Re-add raw body for verification if needed
-app.use((req, _res, next) => {
-  if (req.method === "POST" || req.method === "PUT" || req.method === "PATCH") {
-    req.rawBody = JSON.stringify(req.body);
+app.use((req, res, next) => {
+  // If request has already been parsed by Vercel, skip express.json()
+  if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
+    if (req.method === "POST" || req.method === "PUT" || req.method === "PATCH") {
+      req.rawBody = JSON.stringify(req.body);
+    }
+    return next();
   }
-  next();
+  
+  // Otherwise, use standard express JSON parsing
+  express.json()(req, res, (err) => {
+    if (err) return next(err);
+    if (req.method === "POST" || req.method === "PUT" || req.method === "PATCH") {
+      req.rawBody = JSON.stringify(req.body);
+    }
+    express.urlencoded({ extended: false })(req, res, next);
+  });
 });
 
 export function log(message: string, source = "express") {
-  const formattedTime = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
-
-  console.log(`${formattedTime} [${source}] ${message}`);
+  const timestamp = new Date().toISOString();
+  console.log(`${timestamp} [${source}] ${message}`);
 }
 
 app.use((req, res, next) => {
@@ -69,19 +71,7 @@ export const initApp = async () => {
     log("Running on Vercel, skipping database seeding to save execution time.");
   }
 
-  // Test DB connection
-  try {
-    const { db } = await import("./db");
-    const { sql } = await import("drizzle-orm");
-    await db.execute(sql`SELECT 1`);
-    log("Database connection successful.");
-  } catch (err: any) {
-    console.error("Database connection failed:", err);
-    if (process.env.VERCEL) {
-      throw new Error(`Database connection failed: ${err.message}. Ensure POSTGRES_URL is correct.`);
-    }
-  }
-
+  // register routes
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {

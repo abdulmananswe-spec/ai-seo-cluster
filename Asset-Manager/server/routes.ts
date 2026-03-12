@@ -46,6 +46,15 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
 
+  app.get("/api/health", async (_req, res) => {
+    res.json({ 
+      status: "ok", 
+      timestamp: new Date().toISOString(),
+      env: process.env.NODE_ENV,
+      vercel: !!process.env.VERCEL
+    });
+  });
+
   app.get("/api/projects", async (_req, res) => {
     const projects = await storage.getProjects();
     res.json(projects);
@@ -61,6 +70,20 @@ export async function registerRoutes(
 
   app.post("/api/projects", async (req, res) => {
     try {
+      console.log(`[API] Starting project creation for domain: ${req.body?.domain}`);
+      
+      // Urgent Check: Ensure DB is reachable
+      try {
+        const { sql } = await import("drizzle-orm");
+        await storage.getProjects().catch(e => { throw new Error(`DB Ping Failed: ${e.message}`) });
+      } catch (dbError: any) {
+        console.error("[API] Pre-creation DB check failed:", dbError);
+        return res.status(503).json({ 
+          message: "Database temporarily unavailable", 
+          error: dbError.message 
+        });
+      }
+
       console.log("[API] Create Project request body:", JSON.stringify(req.body));
       const parsed = insertProjectSchema.safeParse(req.body);
       if (!parsed.success) {
