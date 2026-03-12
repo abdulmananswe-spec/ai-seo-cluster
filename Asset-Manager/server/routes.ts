@@ -60,10 +60,21 @@ export async function registerRoutes(
   });
 
   app.post("/api/projects", async (req, res) => {
-    const parsed = insertProjectSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ message: parsed.error.message });
-    const project = await storage.createProject(parsed.data);
-    res.status(201).json(project);
+    try {
+      const parsed = insertProjectSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid project data", details: parsed.error.message });
+      }
+      const project = await storage.createProject(parsed.data);
+      res.status(201).json(project);
+    } catch (error: any) {
+      console.error("[API] Project Creation Error:", error);
+      res.status(500).json({ 
+        message: "Failed to create project", 
+        error: error.message,
+        details: "Check server logs for more information."
+      });
+    }
   });
 
   app.delete("/api/projects/:id", async (req, res) => {
