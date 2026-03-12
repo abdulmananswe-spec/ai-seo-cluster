@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(__dirname, "..", "dist", "public");
+  const distPath = path.join(process.cwd(), "dist", "public");
   
   // Use Vercel's native static serving if possible, 
   // but Express should still know where files are for SSR/fallback.

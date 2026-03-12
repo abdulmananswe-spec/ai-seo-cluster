@@ -12,15 +12,20 @@ declare module "http" {
   }
 }
 
-app.use(
-  express.json({
-    verify: (req, _res, buf) => {
-      req.rawBody = buf;
-    },
-  }),
-);
-
-app.use(express.urlencoded({ extended: false }));
+if (!process.env.VERCEL) {
+  app.use(
+    express.json({
+      verify: (req, _res, buf) => {
+        req.rawBody = buf;
+      },
+    }),
+  );
+  app.use(express.urlencoded({ extended: false }));
+} else {
+  // On Vercel, bodies are already parsed and available in req.body
+  // We just need to ensure the app knows how to handle them
+  app.use(express.json());
+}
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
