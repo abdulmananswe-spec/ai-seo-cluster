@@ -79,13 +79,21 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="border-b border-sidebar-border px-6 py-5">
         <Link href="/" data-testid="link-home">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Sparkles className="h-5 w-5" />
+          <div className="flex items-center gap-3 group">
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 shadow-lg shadow-blue-500/20 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white drop-shadow-sm">
+                <path d="M12 3L4 9V15L12 21L20 15V9L12 3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 3V21" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.5" strokeLinecap="round"/>
+                <path d="M4 9L20 15" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.5" strokeLinecap="round"/>
+                <path d="M20 9L4 15" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.5" strokeLinecap="round"/>
+                <circle cx="12" cy="12" r="3" fill="currentColor" fillOpacity="0.2"/>
+                <path d="M12 9L15 12L12 15L9 12L12 9Z" fill="white"/>
+              </svg>
+              <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-emerald-400 border-2 border-white animate-pulse" />
             </div>
             <div>
-              <h1 className="text-base font-semibold tracking-tight">AI SEO Analyzer</h1>
-              <p className="text-xs text-muted-foreground">Full SEO Toolkit</p>
+              <h1 className="text-sm font-bold tracking-tight text-foreground/90 group-hover:text-primary transition-colors">AI SEO ANALYZER</h1>
+              <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground/60 transition-all group-hover:translate-x-1">Precision Toolkit</p>
             </div>
           </div>
         </Link>

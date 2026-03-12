@@ -1,161 +1,161 @@
 import { sql } from "drizzle-orm";
-import { sqliteTable, integer, text, real } from "drizzle-orm/sqlite-core";
+import { pgTable, serial, integer, text, doublePrecision, jsonb, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const projects = sqliteTable("projects", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const projects = pgTable("projects", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   domain: text("domain").notNull(),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const keywords = sqliteTable("keywords", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const keywords = pgTable("keywords", {
+  id: serial("id").primaryKey(),
   projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
   keyword: text("keyword").notNull(),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const clusters = sqliteTable("clusters", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const clusters = pgTable("clusters", {
+  id: serial("id").primaryKey(),
   projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
   clusterName: text("cluster_name").notNull(),
   topic: text("topic").notNull(),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const clusterKeywords = sqliteTable("cluster_keywords", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const clusterKeywords = pgTable("cluster_keywords", {
+  id: serial("id").primaryKey(),
   clusterId: integer("cluster_id").notNull().references(() => clusters.id, { onDelete: "cascade" }),
   keywordId: integer("keyword_id").notNull().references(() => keywords.id, { onDelete: "cascade" }),
 });
 
-export const contentPlans = sqliteTable("content_plans", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const contentPlans = pgTable("content_plans", {
+  id: serial("id").primaryKey(),
   clusterId: integer("cluster_id").notNull().references(() => clusters.id, { onDelete: "cascade" }),
   pillarTitle: text("pillar_title").notNull(),
-  supportingTitles: text("supporting_titles", { mode: "json" }).$type<string[]>().notNull().default([]),
+  supportingTitles: jsonb("supporting_titles").$type<string[]>().notNull().default([]),
   metaTitle: text("meta_title").notNull(),
   metaDescription: text("meta_description").notNull(),
   searchIntent: text("search_intent").notNull(),
-  headings: text("headings", { mode: "json" }).$type<string[]>().notNull().default([]),
-  internalLinks: text("internal_links", { mode: "json" }).$type<{ from: string; to: string; anchor: string }[]>().notNull().default([]),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  headings: jsonb("headings").$type<string[]>().notNull().default([]),
+  internalLinks: jsonb("internal_links").$type<{ from: string; to: string; anchor: string }[]>().notNull().default([]),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const serpAnalyses = sqliteTable("serp_analyses", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const serpAnalyses = pgTable("serp_analyses", {
+  id: serial("id").primaryKey(),
   projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
   keyword: text("keyword").notNull(),
-  difficulty: real("difficulty"),
+  difficulty: doublePrecision("difficulty"),
   searchVolume: integer("search_volume"),
-  cpc: real("cpc"),
+  cpc: doublePrecision("cpc"),
   intent: text("intent"),
-  serpFeatures: text("serp_features", { mode: "json" }).$type<string[]>().default([]),
-  topResults: text("top_results", { mode: "json" }).$type<{ position: number; title: string; url: string; description: string }[]>().default([]),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  serpFeatures: jsonb("serp_features").$type<string[]>().default([]),
+  topResults: jsonb("top_results").$type<{ position: number; title: string; url: string; description: string }[]>().default([]),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const rankEntries = sqliteTable("rank_entries", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const rankEntries = pgTable("rank_entries", {
+  id: serial("id").primaryKey(),
   projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
   keyword: text("keyword").notNull(),
   position: integer("position"),
   url: text("url"),
   previousPosition: integer("previous_position"),
-  checkedAt: text("checked_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  checkedAt: timestamp("checked_at").defaultNow().notNull(),
 });
 
-export const competitors = sqliteTable("competitors", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const competitors = pgTable("competitors", {
+  id: serial("id").primaryKey(),
   projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
   domain: text("domain").notNull(),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const competitorAnalyses = sqliteTable("competitor_analyses", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const competitorAnalyses = pgTable("competitor_analyses", {
+  id: serial("id").primaryKey(),
   competitorId: integer("competitor_id").notNull().references(() => competitors.id, { onDelete: "cascade" }),
-  domainAuthority: real("domain_authority"),
+  domainAuthority: doublePrecision("domain_authority"),
   organicKeywords: integer("organic_keywords"),
   organicTraffic: integer("organic_traffic"),
-  topKeywords: text("top_keywords", { mode: "json" }).$type<{ keyword: string; position: number; volume: number }[]>().default([]),
-  contentGaps: text("content_gaps", { mode: "json" }).$type<string[]>().default([]),
-  strengths: text("strengths", { mode: "json" }).$type<string[]>().default([]),
-  weaknesses: text("weaknesses", { mode: "json" }).$type<string[]>().default([]),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  topKeywords: jsonb("top_keywords").$type<{ keyword: string; position: number; volume: number }[]>().default([]),
+  contentGaps: jsonb("content_gaps").$type<string[]>().default([]),
+  strengths: jsonb("strengths").$type<string[]>().default([]),
+  weaknesses: jsonb("weaknesses").$type<string[]>().default([]),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const backlinkAnalyses = sqliteTable("backlink_analyses", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const backlinkAnalyses = pgTable("backlink_analyses", {
+  id: serial("id").primaryKey(),
   projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
   domain: text("domain").notNull(),
   totalBacklinks: integer("total_backlinks"),
   referringDomains: integer("referring_domains"),
-  domainAuthority: real("domain_authority"),
-  topBacklinks: text("top_backlinks", { mode: "json" }).$type<{ source: string; target: string; anchor: string; authority: number; type: string }[]>().default([]),
-  anchorDistribution: text("anchor_distribution", { mode: "json" }).$type<{ anchor: string; count: number; percentage: number }[]>().default([]),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  domainAuthority: doublePrecision("domain_authority"),
+  topBacklinks: jsonb("top_backlinks").$type<{ source: string; target: string; anchor: string; authority: number; type: string }[]>().default([]),
+  anchorDistribution: jsonb("anchor_distribution").$type<{ anchor: string; count: number; percentage: number }[]>().default([]),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const searchConsoleData = sqliteTable("search_console_data", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const searchConsoleData = pgTable("search_console_data", {
+  id: serial("id").primaryKey(),
   projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
   query: text("query").notNull(),
   clicks: integer("clicks").default(0),
   impressions: integer("impressions").default(0),
-  ctr: real("ctr").default(0),
-  position: real("position").default(0),
+  ctr: doublePrecision("ctr").default(0),
+  position: doublePrecision("position").default(0),
   page: text("page"),
   date: text("date"),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const siteAnalyses = sqliteTable("site_analyses", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const siteAnalyses = pgTable("site_analyses", {
+  id: serial("id").primaryKey(),
   projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
   url: text("url").notNull(),
   status: text("status").notNull().default("pending"),
-  domainAuthority: real("domain_authority"),
-  seoScore: real("seo_score"),
+  domainAuthority: doublePrecision("domain_authority"),
+  seoScore: doublePrecision("seo_score"),
   totalPages: integer("total_pages").default(0),
   totalKeywordsFound: integer("total_keywords_found").default(0),
   issuesCount: integer("issues_count").default(0),
-  summary: text("summary", { mode: "json" }).$type<{
+  summary: jsonb("summary").$type<{
     avgWordCount: number;
     avgPageAuthority: number;
     topIssues: string[];
     contentOpportunities: string[];
   }>(),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const crawledPages = sqliteTable("crawled_pages", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const crawledPages = pgTable("crawled_pages", {
+  id: serial("id").primaryKey(),
   siteAnalysisId: integer("site_analysis_id").notNull().references(() => siteAnalyses.id, { onDelete: "cascade" }),
   url: text("url").notNull(),
   title: text("title"),
   metaDescription: text("meta_description"),
   h1: text("h1"),
-  h2s: text("h2s", { mode: "json" }).$type<string[]>().default([]),
+  h2s: jsonb("h2s").$type<string[]>().default([]),
   wordCount: integer("word_count").default(0),
-  internalLinks: text("internal_links", { mode: "json" }).$type<string[]>().default([]),
-  externalLinks: text("external_links", { mode: "json" }).$type<string[]>().default([]),
-  pageAuthority: real("page_authority"),
-  keywordDensity: real("keyword_density"),
-  seoIssues: text("seo_issues", { mode: "json" }).$type<{ issue: string; severity: string; description: string }[]>().default([]),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  internalLinks: jsonb("internal_links").$type<string[]>().default([]),
+  externalLinks: jsonb("external_links").$type<string[]>().default([]),
+  pageAuthority: doublePrecision("page_authority"),
+  keywordDensity: doublePrecision("keyword_density"),
+  seoIssues: jsonb("seo_issues").$type<{ issue: string; severity: string; description: string }[]>().default([]),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const extractedKeywords = sqliteTable("extracted_keywords", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const extractedKeywords = pgTable("extracted_keywords", {
+  id: serial("id").primaryKey(),
   siteAnalysisId: integer("site_analysis_id").notNull().references(() => siteAnalyses.id, { onDelete: "cascade" }),
   keyword: text("keyword").notNull(),
   frequency: integer("frequency").default(0),
-  tfidfScore: real("tfidf_score").default(0),
+  tfidfScore: doublePrecision("tfidf_score").default(0),
   isLongTail: integer("is_long_tail").default(0),
-  difficulty: real("difficulty"),
+  difficulty: doublePrecision("difficulty"),
   searchVolume: integer("search_volume"),
   cluster: text("cluster"),
 });

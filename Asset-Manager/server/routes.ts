@@ -8,12 +8,12 @@ import { extractKeywords } from "./keyword-extractor";
 import { scoreSite } from "./seo-scorer";
 
 function getGeminiClient(): GoogleGenerativeAI {
-  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "AIzaSyB7eDZXqtOeM4fmLTS5EfU24P8WgmmUG8A");
+  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "AIzaSyB7USnzKKtSh4MOp3kJFpDIsjI6btRlMrE");
 }
 
 async function generateJsonResponse(prompt: string, systemPrompt?: string): Promise<string> {
   const genAI = getGeminiClient();
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: systemPrompt });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", systemInstruction: systemPrompt });
 
   try {
     const result = await model.generateContent({
