@@ -8,7 +8,11 @@ import { extractKeywords } from "./keyword-extractor";
 import { scoreSite } from "./seo-scorer";
 
 function getGeminiClient(): GoogleGenerativeAI {
-  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "AIzaSyB7USnzKKtSh4MOp3kJFpDIsjI6btRlMrE");
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not set. Please provide it as an environment variable.");
+  }
+  return new GoogleGenerativeAI(apiKey);
 }
 
 async function generateJsonResponse(prompt: string, systemPrompt?: string): Promise<string> {

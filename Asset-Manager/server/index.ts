@@ -60,8 +60,13 @@ app.use((req, res, next) => {
 });
 
 export const initApp = async () => {
-  const { seedDatabase } = await import("./seed");
-  await seedDatabase().catch((err) => console.error("Seed error:", err));
+  // Only seed if not on Vercel or explicitly asked
+  if (!process.env.VERCEL) {
+    const { seedDatabase } = await import("./seed");
+    await seedDatabase().catch((err) => console.error("Seed error:", err));
+  } else {
+    log("Running on Vercel, skipping database seeding to save execution time.");
+  }
 
   await registerRoutes(httpServer, app);
 
